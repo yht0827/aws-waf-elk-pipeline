@@ -9,11 +9,11 @@ ES_ENDPOINT = "http://localhost:9200/waf-security-logs/_doc"
 LOG_GROUP = "aws-waf-logs-sec-pipeline"
 REGION = "ap-northeast-2"
 
-# 2026년 9월 18일 14:00:00 KST (05:00:00 UTC) 기준으로 시간 시프트
+# 2026-09-18 14:00:00 KST (05:00:00 UTC) base timestamp
 TARGET_BASE_TIME = datetime.datetime(2026, 9, 18, 5, 0, 0, tzinfo=datetime.timezone.utc)
 
 def fetch_cloudwatch_logs():
-    print(f"📡 Fetching live WAF logs from AWS CloudWatch ({LOG_GROUP})...")
+    print(f"[INFO] Fetching live WAF logs from AWS CloudWatch ({LOG_GROUP})...")
     # 1. 최신 스트림 이름 조회
     cmd_streams = [
         "aws", "logs", "describe-log-streams",
@@ -25,13 +25,13 @@ def fetch_cloudwatch_logs():
     ]
     res_streams = subprocess.run(cmd_streams, capture_output=True, text=True)
     if res_streams.returncode != 0:
-        print(f"Error describing log streams: {res_streams.stderr}")
+        print(f"[ERROR] Failed describing log streams: {res_streams.stderr}")
         return []
 
     stream_data = json.loads(res_streams.stdout)
     streams = stream_data.get("logStreams", [])
     if not streams:
-        print("No log streams found.")
+        print("[WARN] No log streams found.")
         return []
 
     all_events = []
@@ -49,7 +49,7 @@ def fetch_cloudwatch_logs():
             ev_data = json.loads(res_events.stdout)
             all_events.extend(ev_data.get("events", []))
 
-    print(f"Fetched {len(all_events)} real WAF events from CloudWatch.")
+    print(f"[INFO] Fetched {len(all_events)} real WAF events from CloudWatch.")
     return all_events
 
 def transform_event_to_september(raw_msg_str, index_offset):
@@ -61,7 +61,7 @@ def transform_event_to_september(raw_msg_str, index_offset):
     http_req = raw.get("httpRequest", {})
     headers = {h["name"].lower(): h["value"] for h in http_req.get("headers", [])}
     
-    # 9월 18일 기준, 이벤트마다 수 초 간격으로 자연스럽게 배치
+    # 9월 18일 기준 자연스러운 시간 간격 배치
     shifted_time = TARGET_BASE_TIME + datetime.timedelta(seconds=index_offset * 12 + (index_offset % 5))
     iso_time = shifted_time.isoformat()
 
@@ -84,7 +84,7 @@ def transform_event_to_september(raw_msg_str, index_offset):
 def main():
     events = fetch_cloudwatch_logs()
     if not events:
-        print("No events found in CloudWatch. Generating from simulator sample...")
+        print("[WARN] No events found in CloudWatch.")
         return
 
     os.makedirs("data", exist_ok=True)
@@ -98,9 +98,9 @@ def main():
                 docs_to_index.append(doc)
                 f.write(json.dumps(doc, ensure_ascii=False) + "\n")
 
-    print(f"💾 Saved {len(docs_to_index)} September-mapped logs to {saved_file}")
+    print(f"[INFO] Saved {len(docs_to_index)} logs to {saved_file}")
 
-    print("🚀 Indexing September WAF logs into Elasticsearch (waf-security-logs)...")
+    print("[INFO] Indexing WAF logs into Elasticsearch (waf-security-logs)...")
     indexed_count = 0
     for doc in docs_to_index:
         try:
@@ -113,9 +113,9 @@ def main():
             urllib.request.urlopen(req)
             indexed_count += 1
         except Exception as e:
-            print(f"Error indexing: {e}")
+            print(f"[ERROR] Indexing failure: {e}")
 
-    print(f"✅ Successfully indexed {indexed_count} WAF threat logs into Elasticsearch under September 2026!")
+    print(f"[SUCCESS] Successfully indexed {indexed_count} WAF threat logs into Elasticsearch.")
 
 if __name__ == "__main__":
     main()

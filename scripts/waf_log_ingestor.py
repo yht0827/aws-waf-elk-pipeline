@@ -27,7 +27,7 @@ def transform_waf_log(raw_log: dict) -> dict:
 
 def ingest_file(filepath: str):
     if not os.path.exists(filepath):
-        print(f"File not found: {filepath}")
+        print(f"[ERROR] File not found: {filepath}")
         return
 
     count = 0
@@ -47,9 +47,9 @@ def ingest_file(filepath: str):
                 urllib.request.urlopen(req)
                 count += 1
             except Exception as e:
-                print(f"Error indexing line: {e}")
+                print(f"[ERROR] Indexing failure: {e}")
                 
-    print(f"✅ Successfully indexed {count} WAF logs into Elasticsearch (index: waf-security-logs)!")
+    print(f"[SUCCESS] Successfully indexed {count} WAF logs into Elasticsearch (index: waf-security-logs)")
 
 if __name__ == "__main__":
     import sys

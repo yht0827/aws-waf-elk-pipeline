@@ -2,7 +2,7 @@
 TARGET_URL="${1:-http://localhost}"
 
 echo "========================================================"
-echo "🛡️ AWS WAF Security Verification & Log Generation Script"
+echo "[INFO] AWS WAF Security Verification & Log Generator"
 echo "Target: ${TARGET_URL}"
 echo "========================================================"
 
@@ -14,9 +14,9 @@ run_test() {
 
     HTTP_CODE=$(eval "$cmd" -o /dev/null -s -w "%{http_code}")
     if [ "$HTTP_CODE" == "$expected" ]; then
-        echo "✅ [${tc_id}] ${desc} -> HTTP ${HTTP_CODE} (Expected: ${expected}) [PASS]"
+        echo "[PASS] [${tc_id}] ${desc} -> HTTP ${HTTP_CODE} (Expected: ${expected})"
     else
-        echo "❌ [${tc_id}] ${desc} -> HTTP ${HTTP_CODE} (Expected: ${expected}) [CHECK]"
+        echo "[FAIL] [${tc_id}] ${desc} -> HTTP ${HTTP_CODE} (Expected: ${expected})"
     fi
 }
 
@@ -42,10 +42,10 @@ run_test "TC-05b" "Scanner UA (Nikto)" \
     "curl -A 'Mozilla/5.00 (Nikto/2.1.6)' '${TARGET_URL}/'" "403"
 
 echo "--------------------------------------------------------"
-echo "📊 Generating bulk attack logs for ELK Dashboard..."
+echo "[INFO] Generating bulk attack logs for ELK Dashboard..."
 for i in {1..15}; do
     curl -s -o /dev/null "${TARGET_URL}/login?id=1%27%20OR%201%3D1--"
     curl -s -o /dev/null "${TARGET_URL}/search?q=%3Cscript%3Ealert(1)%3C/script%3E"
     curl -s -o /dev/null -A "sqlmap/1.7" "${TARGET_URL}/admin"
 done
-echo "✅ Done! Logs generated."
+echo "[DONE] Test execution and log generation completed."

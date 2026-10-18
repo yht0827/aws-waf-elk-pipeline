@@ -175,13 +175,13 @@ def create_user_agent_table():
     return post_lens("악성 공격 도구 / 스캐너 목록 (Top User-Agents)", "lnsDatatable", state_vis, layers, query_str="action: \"BLOCK\"")
 
 def main():
-    print("🚀 Rebuilding SOC Dashboard panels with refined schemas...")
+    print("[INFO] Rebuilding SOC Dashboard panels with refined schemas...")
     m_total = create_lens_metric("전체 인입 트래픽", "", "전체 요청 수")
     m_block = create_lens_metric("차단된 위협 공격", "action: \"BLOCK\"", "위협 차단 수")
     m_allow = create_lens_metric("정상 허용 트래픽", "action: \"ALLOW\"", "정상 허용 수")
     rules_chart = create_blocked_rules_chart()
     ua_table = create_user_agent_table()
-    print("✅ Created refined panels!")
+    print("[SUCCESS] Created refined panels!")
 
     # Fetch existing dashboard to preserve Timeline, Donut, Map, IP
     req = urllib.request.Request(f"{KIBANA_URL}/api/saved_objects/dashboard/{DASHBOARD_ID}", headers={"kbn-xsrf": "true"})
@@ -261,7 +261,7 @@ def main():
         method="PUT"
     )
     urllib.request.urlopen(req_update)
-    print("🎉 Dashboard successfully upgraded with crystal clear panels!")
+    print("[SUCCESS] Dashboard successfully upgraded with crystal clear panels!")
 
 if __name__ == "__main__":
     main()

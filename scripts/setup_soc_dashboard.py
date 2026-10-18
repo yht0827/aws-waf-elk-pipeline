@@ -63,7 +63,7 @@ def create_metric(title, query_str, label):
         "references": [{"type": "index-pattern", "id": DATA_VIEW_ID, "name": ref_name}]
     }
     res = post_saved_object("lens", payload)
-    print(f"✅ Metric created: {title} ({res['id']})")
+    print(f"[SUCCESS] Metric created: {title} ({res['id']})")
     return res["id"]
 
 def create_bar_chart(title, field_name, label, top_n=5, is_horizontal=False):
@@ -139,7 +139,7 @@ def create_bar_chart(title, field_name, label, top_n=5, is_horizontal=False):
         "references": [{"type": "index-pattern", "id": DATA_VIEW_ID, "name": ref_name}]
     }
     res = post_saved_object("lens", payload)
-    print(f"✅ Bar chart created: {title} ({res['id']})")
+    print(f"[SUCCESS] Bar chart created: {title} ({res['id']})")
     return res["id"]
 
 def create_timeline_chart(title):
@@ -224,7 +224,7 @@ def create_timeline_chart(title):
         "references": [{"type": "index-pattern", "id": DATA_VIEW_ID, "name": ref_name}]
     }
     res = post_saved_object("lens", payload)
-    print(f"✅ Timeline chart created: {title} ({res['id']})")
+    print(f"[SUCCESS] Timeline chart created: {title} ({res['id']})")
     return res["id"]
 
 def setup_full_dashboard():
@@ -327,7 +327,7 @@ def setup_full_dashboard():
         method="PUT"
     )
     with urllib.request.urlopen(req_update) as res:
-        print("🎉 Successfully upgraded Kibana Dashboard to Full Enterprise SOC Dashboard!")
+        print("[SUCCESS] Successfully upgraded Kibana Dashboard to Full Enterprise SOC Dashboard!")
 
 if __name__ == "__main__":
     setup_full_dashboard()
