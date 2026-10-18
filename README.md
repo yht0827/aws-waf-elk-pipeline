@@ -1,4 +1,4 @@
-# AWS WAF & ELK Real-Time Web Security Pipeline
+# AWS WAF와 ELK를 활용한 실시간 웹 보안 관제 시스템
 
 Terraform 코드로 AWS에 고가용성 웹 서버와 방화벽(WAF)을 구축하고, 차단된 공격 로그를 실시간으로 모니터링할 수 있는 대시보드(ELK)를 구현한 프로젝트입니다.
 
@@ -54,18 +54,18 @@ Terraform 코드로 AWS에 고가용성 웹 서버와 방화벽(WAF)을 구축�
 
 ---
 
-## Verification Scenarios
+## 대표 검증 시나리오
 
-공격 스크립트를 이용해 6가지 시나리오를 직접 테스트하고 방어 동작을 검증했습니다.
+공격 시뮬레이션을 통해 6가지 시나리오를 직접 테스트하고 방어 동작을 검증했습니다.
 
-| 점검 항목 | 테스트 공격 내용 | 동작한 차단 규칙 | 결과 |
+| 점검 항목 | 공격 유형 및 페이로드 | 대응 룰셋 | 판정 |
 | :--- | :--- | :--- | :---: |
-| **정상 접속 및 오탐 검증** (`TC-01`) | `GET /search?q=C%2B%2B&lang=ko` (정상 검색 요청) | 기본 규칙 (Default) | **200 OK (정상 허용)** |
-| **SQL Injection 공격** (`TC-02`) | `' UNION SELECT NULL, version()--` (DB 데이터 탈취 시도) | 1단계 자체 SQLi 규칙 | **403 Forbidden (차단)** |
-| **XSS 스크립트 공격** (`TC-03`) | `<img src=x onerror=alert(1)>` (악성 스크립트 실행 시도) | 1단계 자체 XSS 규칙 | **403 Forbidden (차단)** |
-| **시스템 파일 접근** (`TC-04`) | `../../../../etc/passwd` (서버 내부 설정 파일 조회 시도) | 2단계 AWS 공통 규칙 | **403 Forbidden (차단)** |
-| **자동화 해킹 도구** (`TC-05`) | `sqlmap`, `nikto` (해킹 스캐너 프로그램으로 접속) | 4단계 도구 차단 규칙 | **403 Forbidden (차단)** |
-| **비정상 대량 요청** (`TC-06`) | 한 IP에서 5분간 100회 이상 빠른 속도로 접속 | 5단계 요청 제한 규칙 | **403 Forbidden (차단)** |
+| **정상 서비스 접속 및 오탐 검증** (`TC-01`) | `GET /search?q=C%2B%2B&lang=ko` (정상 파라미터 및 특수문자 인입 시 오탐 여부) | Default Action | **200 OK (정상 허용)** |
+| **SQL Injection (우회 시도)** (`TC-02`) | `' UNION SELECT NULL, version()--`, URL 인코딩(`%27`) 변조 | Custom Inline SQLi (URL Decode 정규화) | **403 Forbidden (차단)** |
+| **Reflected XSS (난독화 대응)** (`TC-03`) | `<img src=x onerror=alert(1)>`, 대소문자 혼합(`sCrIpt`) 삽입 | Custom Inline XSS (Lowercase 변환) | **403 Forbidden (차단)** |
+| **시스템 파일 침투 (LFI/Path Traversal)** (`TC-04`) | `../../../../etc/passwd`, 널 바이트(`%00`) 삽입 우회 | AWS Core Managed Rule (CRS) | **403 Forbidden (차단)** |
+| **자동화 스캐너 및 무단 크롤링** (`TC-05`) | `User-Agent: sqlmap`, `Nikto`, `python-requests` 헤더 변조 | Custom Scanner & Bot Rule | **403 Forbidden (차단)** |
+| **L7 DDoS 및 무차별 대입 방어** (`TC-06`) | 동일 IP에서 5분간 100회 초과 고빈도 요청 (임계치 초과) | Custom Rate Limit Rule | **403 Forbidden (차단)** |
 
 ---
 
