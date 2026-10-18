@@ -44,7 +44,7 @@
   - **공격자 IP Top 5 파이 차트**
   - **실시간 차단 로그 스트림 테이블**
 
-![Kibana SOC Dashboard](docs/screenshots/13_kibana_enterprise_soc_threat_dashboard.png)
+![Kibana SOC Dashboard](docs/screenshots/13_kibana_soc_dashboard_clean.png)
 
 ---
 
