@@ -1,0 +1,20 @@
+# ==============================================================================
+# AWS WAF & ELK Security Infrastructure Variable Configuration
+# ==============================================================================
+
+aws_region             = "ap-northeast-2"
+project_name           = "sec-pipeline"
+environment            = "production"
+
+vpc_cidr               = "10.0.0.0/16"
+public_subnet_cidrs = {
+  "a" = "10.0.1.0/24"
+  "c" = "10.0.2.0/24"
+}
+private_subnet_cidrs = {
+  "a" = "10.0.10.0/24"
+}
+
+instance_type          = "t3.micro"
+waf_rate_limit         = 100
+waf_log_retention_days = 7
