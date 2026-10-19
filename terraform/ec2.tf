@@ -15,6 +15,7 @@ resource "aws_instance" "web_a" {
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.public_a.id
   vpc_security_group_ids = [aws_security_group.web_sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   user_data = templatefile("${path.module}/templates/user_data.sh.tpl", {
     node_name = "Backend Server #1"
@@ -31,6 +32,7 @@ resource "aws_instance" "web_c" {
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.public_c.id
   vpc_security_group_ids = [aws_security_group.web_sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   user_data = templatefile("${path.module}/templates/user_data.sh.tpl", {
     node_name = "Backend Server #2"

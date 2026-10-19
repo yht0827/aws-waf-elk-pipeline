@@ -24,6 +24,7 @@ Terraform 코드로 AWS에 고가용성 웹 서버와 방화벽(WAF)을 구축�
 | **Web Server** | Amazon EC2 | `t3.micro` (Amazon Linux 2023, Nginx) x 2 | Private 서브넷에 안전하게 격리 배치 |
 | **Security Group** | Security Groups | ALB: 모든 사용자(80 포트) 허용<br>EC2: ALB를 통과한 트래픽만 허용 | 외부에서 웹 서버로 직접 접속하는 경로 차단 |
 | **Web Firewall** | AWS WAF v2 | Regional Web ACL (5단계 차단 규칙) | ALB에 연결되어 5단계 검사 및 403 차단 수행 |
+| **Access Control** | AWS IAM | Instance Profile (`AmazonSSMManagedInstanceCore`) | 22번 SSH 포트 차단, SSM 기반 안전한 원격 관리 |
 | **Log Storage** | CloudWatch Logs | Log Group (보관 주기 7일) | WAF에서 탐지·차단한 전체 접속 로그 수집 |
 
 ---
@@ -76,6 +77,7 @@ aws-waf-elk-pipeline/
 ├── terraform/                   # Terraform 인프라 배포 코드
 │   ├── alb.tf                   # 트래픽 분산 로드밸런서 설정
 │   ├── ec2.tf                   # Nginx 웹 서버 인스턴스 설정
+│   ├── iam.tf                   # 최소 권한 및 SSM 접근 제어 역할
 │   ├── security.tf              # 접근 제어 보안 그룹 설정
 │   ├── vpc.tf                   # 네트워크 및 서브넷 설정
 │   ├── waf.tf                   # 5단계 WAF 방화벽 규칙 설정
